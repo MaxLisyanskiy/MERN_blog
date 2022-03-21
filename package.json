@@ -1,0 +1,17 @@
+{
+  "name": "workout-app",
+  "version": "1.0.0",
+  "description": "My workout-app",
+  "main": "back/server.js",
+  "scripts": {
+    "start": "node back/server",
+    "server": "nodemon back/server"
+  },
+  "type": "module",
+  "author": "Max",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.0.0",
+    "express": "^4.17.3"
+  }
+}
