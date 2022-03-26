@@ -6,6 +6,9 @@ import colors from 'colors'
 // Config
 import { connectDB } from './config/db.js'
 
+// Middleware
+import { errorHandler, notFound } from './middleware/errorMiddleware.js'
+
 // Routes
 import userRoutes from './routers/userRoutes.js'
 
@@ -22,6 +25,9 @@ if (process.env.NODE_ENV === 'development') {
 app.use(express.json())
 
 app.use('/api/users', userRoutes)
+
+app.use(errorHandler)
+app.use(notFound)
 
 const PORT = process.env.PORT || 5000
 
