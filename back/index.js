@@ -8,10 +8,12 @@ import { registerValidation } from './validation/auth.js'
 
 import UserModel from './models/User.js'
 
+import checkAuth from './middleware/checkAuth.js'
+
 mongoose
 	.connect('mongodb+srv://Max:maxmaxmax@cluster0.aetsxnu.mongodb.net/blog?retryWrites=true&w=majority')
-	.then(() => console.log('DB ok'))
-	.catch(err => console.log('DB error', err))
+	.then(() => console.log('MongoDB connection is successful'))
+	.catch(err => console.log('MongoDB connection is error', err))
 
 const app = express()
 
@@ -23,6 +25,7 @@ app.post('/auth/login', async (req, res) => {
 
 		if (!user) {
 			return res.status(403).json({
+				success: false,
 				message: 'Пользователь не найден',
 			})
 		}
@@ -31,6 +34,7 @@ app.post('/auth/login', async (req, res) => {
 
 		if (!isValidPass) {
 			return res.status(401).json({
+				success: false,
 				message: 'Неверный логин или пароль',
 			})
 		}
@@ -47,12 +51,13 @@ app.post('/auth/login', async (req, res) => {
 		const { passwordHash, ...userData } = user._doc
 
 		res.json({
+			success: true,
 			...userData,
 			token,
 		})
 	} catch (err) {
-		console.log(err)
 		res.status(500).json({
+			success: false,
 			message: 'Не удалось авторизоваться',
 			err,
 		})
@@ -93,13 +98,40 @@ app.post('/auth/register', registerValidation, async (req, res) => {
 		const { passwordHash, ...userData } = user._doc
 
 		res.json({
+			success: true,
 			...userData,
 			token,
 		})
 	} catch (err) {
 		res.status(500).json({
+			success: false,
 			message: 'Не удалось зарегистрироваться',
 			err,
+		})
+	}
+})
+
+app.get('/auth/me', checkAuth, async (req, res) => {
+	const user = await UserModel.findById(req.userID)
+
+	if (!user) {
+		return res.status(404).json({
+			success: false,
+			message: 'Пользователь не найден',
+		})
+	}
+
+	const { passwordHash, ...userData } = user._doc
+
+	try {
+		res.json({
+			success: true,
+			...userData,
+		})
+	} catch (err) {
+		res.status(500).json({
+			success: false,
+			message: 'Не удалось зарегистрироваться',
 		})
 	}
 })
